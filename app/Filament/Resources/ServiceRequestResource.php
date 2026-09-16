@@ -520,7 +520,7 @@ class ServiceRequestResource extends Resource
                                         ->icon('heroicon-m-wrench'),
 
                                     Infolists\Components\TextEntry::make('due_date')
-                                        ->label('Target Due Date')
+                                        ->label('Due Date')
                                         ->dateTime('M d, Y H:i')
                                         ->placeholder('Not set'),
 

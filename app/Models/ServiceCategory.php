@@ -15,7 +15,6 @@ class ServiceCategory extends Model
         'department_id',
         'name',
         'description',
-        'sla_hours_default',
         'icon',
         'is_active',
     ];
@@ -24,7 +23,6 @@ class ServiceCategory extends Model
     {
         return [
             'is_active' => 'boolean',
-            'sla_hours_default' => 'integer',
         ];
     }
 

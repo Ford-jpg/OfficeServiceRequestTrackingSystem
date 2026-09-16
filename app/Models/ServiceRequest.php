@@ -99,12 +99,6 @@ class ServiceRequest extends Model
             if (empty($request->status)) {
                 $request->status = self::STATUS_SUBMITTED;
             }
-
-            if (empty($request->due_date) && $request->service_category_id) {
-                $category = ServiceCategory::find($request->service_category_id);
-                $slaHours = $category?->sla_hours_default ?? 24;
-                $request->due_date = Carbon::now()->addHours($slaHours);
-            }
         });
 
         static::created(function (ServiceRequest $request) {

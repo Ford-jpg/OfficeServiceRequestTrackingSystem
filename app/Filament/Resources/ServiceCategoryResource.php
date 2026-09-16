@@ -39,13 +39,6 @@ class ServiceCategoryResource extends Resource
                             ->maxLength(255)
                             ->placeholder('e.g. Air Conditioning / HVAC'),
 
-                        Forms\Components\TextInput::make('sla_hours_default')
-                            ->label(' (Hours)')
-                            ->numeric()
-                            ->default(24)
-                            ->required()
-                            ->suffix('Hours'),
-
                         Forms\Components\Toggle::make('is_active')
                             ->label('Active Category')
                             ->default(true),
@@ -72,11 +65,6 @@ class ServiceCategoryResource extends Resource
                     ->color('primary')
                     ->sortable()
                     ->searchable(),
-
-                Tables\Columns\TextColumn::make('sla_hours_default')
-                    ->label('Target')
-                    ->suffix(' hrs')
-                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('service_requests_count')
                     ->label('Total Requests')

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained('departments')->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->unsignedInteger('sla_hours_default')->default(24);
             $table->string('icon')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

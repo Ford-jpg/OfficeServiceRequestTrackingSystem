@@ -58,56 +58,48 @@ class DatabaseSeeder extends Seeder
             'department_id' => $officeA->id,
             'name' => 'Air Conditioning & Climate',
             'description' => 'Temperature issues, leaks, air flow adjustments.',
-            'sla_hours_default' => 12,
         ]);
 
         ServiceCategory::create([
             'department_id' => $officeA->id,
             'name' => 'Plumbing & Water',
             'description' => 'Leaks, restroom fixtures, water dispensers.',
-            'sla_hours_default' => 4,
         ]);
 
         ServiceCategory::create([
             'department_id' => $officeA->id,
             'name' => 'Electrical & Lighting',
             'description' => 'Flickering lights, blown outlets, circuit breakers.',
-            'sla_hours_default' => 8,
         ]);
 
         ServiceCategory::create([
             'department_id' => $officeB->id,
             'name' => 'Hardware & Laptop Repairs',
             'description' => 'Battery replacement, monitor repairs, peripherals.',
-            'sla_hours_default' => 24,
         ]);
 
         ServiceCategory::create([
             'department_id' => $officeB->id,
             'name' => 'Network & Wi-Fi Access',
             'description' => 'Ethernet port issues, VPN configuration, SSID drops.',
-            'sla_hours_default' => 4,
         ]);
 
         ServiceCategory::create([
             'department_id' => $officeC->id,
             'name' => 'Stationery & Office Supplies',
             'description' => 'Desk supplies, presentation whiteboards, notebooks.',
-            'sla_hours_default' => 48,
         ]);
 
         ServiceCategory::create([
             'department_id' => $officeD->id,
             'name' => 'Security & Access Badges',
             'description' => 'Badge replacement, visitor credentials, door access.',
-            'sla_hours_default' => 8,
         ]);
 
         ServiceCategory::create([
             'department_id' => $officeA->id,
             'name' => 'Ergonomics & Desk Furniture',
             'description' => 'Standing desk motor repair, ergonomic chair adjustments.',
-            'sla_hours_default' => 36,
         ]);
     }
 }
