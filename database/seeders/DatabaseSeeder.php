@@ -14,77 +14,80 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Seed Offices / Units
-        $execOffice = Department::create([
-            'name' => 'Executive Office',
-            'code' => 'EXEC',
-            'description' => 'Office of the Executive Director',
-            'email' => 'exec@company.com',
+        $officeA = Department::create([
+            'name' => 'Office A',
+            'code' => 'OFA',
+            'description' => 'Office A operations and facility services.',
+            'email' => 'office-a@company.com',
             'is_active' => true,
         ]);
 
-        $itDept = Department::create([
-            'name' => 'Information Technology',
-            'code' => 'IT',
-            'description' => 'IT infrastructure, workstations, and systems support',
-            'email' => 'it@company.com',
+        $officeB = Department::create([
+            'name' => 'Office B',
+            'code' => 'OFB',
+            'description' => 'Office B workstations and technical infrastructure support.',
+            'email' => 'office-b@company.com',
             'is_active' => true,
         ]);
 
-        $facilitiesDept = Department::create([
-            'name' => 'Facilities & Maintenance',
-            'code' => 'FAC',
-            'description' => 'Building maintenance, electrical, and utilities',
-            'email' => 'facilities@company.com',
+        $officeC = Department::create([
+            'name' => 'Office C',
+            'code' => 'OFC',
+            'description' => 'Office C administration and office supply logistics.',
+            'email' => 'office-c@company.com',
             'is_active' => true,
         ]);
 
-        $hrDept = Department::create([
-            'name' => 'Human Resources',
-            'code' => 'HR',
-            'description' => 'People operations and staff administrative services',
-            'email' => 'hr@company.com',
+        $officeD = Department::create([
+            'name' => 'Office D',
+            'code' => 'OFD',
+            'description' => 'Office D security and access control services.',
+            'email' => 'office-d@company.com',
             'is_active' => true,
         ]);
 
-        // 2. Seed Request Categories
         $catHardware = ServiceCategory::create([
-            'department_id' => $itDept->id,
+            'department_id' => $officeB->id,
             'name' => 'Computer & Hardware Support',
             'description' => 'Laptops, monitors, keyboards, and peripheral repairs.',
         ]);
 
         $catNetwork = ServiceCategory::create([
-            'department_id' => $itDept->id,
+            'department_id' => $officeB->id,
             'name' => 'Network & Internet Access',
             'description' => 'Wi-Fi connection drops, VPN access, ethernet wall ports.',
         ]);
 
         $catHvac = ServiceCategory::create([
-            'department_id' => $facilitiesDept->id,
+            'department_id' => $officeA->id,
             'name' => 'Air Conditioning & HVAC',
             'description' => 'Temperature control, thermostat adjustments, AC leaks.',
         ]);
 
         $catElectrical = ServiceCategory::create([
-            'department_id' => $facilitiesDept->id,
+            'department_id' => $officeA->id,
             'name' => 'Electrical & Lighting',
             'description' => 'Flickering ceiling fixtures, burnt power strips, circuit breakers.',
         ]);
 
         $catSupplies = ServiceCategory::create([
-            'department_id' => $facilitiesDept->id,
+            'department_id' => $officeC->id,
             'name' => 'Office Furniture & Supplies',
             'description' => 'Ergonomic chairs, standing desks, whiteboard markers.',
         ]);
 
-        // 3. Seed Users
+        $catSecurity = ServiceCategory::create([
+            'department_id' => $officeD->id,
+            'name' => 'Security & Access Badges',
+            'description' => 'Badge replacement, visitor credentials, door access.',
+        ]);
+
         $admin = User::create([
             'name' => 'System Administrator',
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
-            'department_id' => $itDept->id,
+            'department_id' => $officeB->id,
         ]);
 
         $employee1 = User::create([
@@ -92,7 +95,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'employee@example.com',
             'password' => Hash::make('password'),
             'role' => 'employee',
-            'department_id' => $hrDept->id,
+            'department_id' => $officeD->id,
         ]);
 
         $employee2 = User::create([
@@ -100,16 +103,13 @@ class DatabaseSeeder extends Seeder
             'email' => 'sarah@example.com',
             'password' => Hash::make('password'),
             'role' => 'employee',
-            'department_id' => $execOffice->id,
+            'department_id' => $officeA->id,
         ]);
 
-        // 4. Seed Sample Service Requests & Audit Trails
-
-        // Request 1: Submitted
         $req1 = ServiceRequest::create([
             'reference_number' => 'REF-202609-0001',
             'user_id' => $employee1->id,
-            'department_id' => $itDept->id,
+            'department_id' => $officeB->id,
             'service_category_id' => $catHardware->id,
             'description' => 'External monitor power supply is faulty and fails to turn on after power surge.',
             'priority' => 'high',
@@ -117,17 +117,17 @@ class DatabaseSeeder extends Seeder
             'created_at' => now()->subDays(2),
         ]);
 
-        // Request 2: Under Review
         $req2 = ServiceRequest::create([
             'reference_number' => 'REF-202609-0002',
             'user_id' => $employee2->id,
-            'department_id' => $facilitiesDept->id,
+            'department_id' => $officeA->id,
             'service_category_id' => $catHvac->id,
             'description' => 'Meeting Room B air conditioning is making a grinding noise and blowing warm air.',
             'priority' => 'urgent',
             'status' => ServiceRequest::STATUS_UNDER_REVIEW,
             'created_at' => now()->subDays(3),
         ]);
+
         RequestAuditLog::create([
             'service_request_id' => $req2->id,
             'user_id' => $admin->id,
@@ -138,17 +138,17 @@ class DatabaseSeeder extends Seeder
             'created_at' => now()->subDays(2),
         ]);
 
-        // Request 3: In Progress
         $req3 = ServiceRequest::create([
             'reference_number' => 'REF-202609-0003',
             'user_id' => $employee1->id,
-            'department_id' => $facilitiesDept->id,
+            'department_id' => $officeA->id,
             'service_category_id' => $catElectrical->id,
-            'description' => 'Overhead LED strip in HR conference cubicle is flickering intermittently.',
+            'description' => 'Overhead LED strip in conference cubicle is flickering intermittently.',
             'priority' => 'medium',
             'status' => ServiceRequest::STATUS_IN_PROGRESS,
             'created_at' => now()->subDays(4),
         ]);
+
         RequestAuditLog::create([
             'service_request_id' => $req3->id,
             'user_id' => $admin->id,
@@ -158,6 +158,7 @@ class DatabaseSeeder extends Seeder
             'notes' => 'Electrician assigned for fixture replacement.',
             'created_at' => now()->subDays(3),
         ]);
+
         RequestAuditLog::create([
             'service_request_id' => $req3->id,
             'user_id' => $admin->id,
@@ -168,17 +169,17 @@ class DatabaseSeeder extends Seeder
             'created_at' => now()->subDays(1),
         ]);
 
-        // Request 4: Completed
         $req4 = ServiceRequest::create([
             'reference_number' => 'REF-202609-0004',
             'user_id' => $employee2->id,
-            'department_id' => $itDept->id,
+            'department_id' => $officeB->id,
             'service_category_id' => $catNetwork->id,
             'description' => 'Need static IP and VLAN configuration for executive conference room videoconferencing unit.',
             'priority' => 'high',
             'status' => ServiceRequest::STATUS_COMPLETED,
             'created_at' => now()->subDays(5),
         ]);
+
         RequestAuditLog::create([
             'service_request_id' => $req4->id,
             'user_id' => $admin->id,
@@ -188,6 +189,7 @@ class DatabaseSeeder extends Seeder
             'notes' => 'Evaluating subnet allocation.',
             'created_at' => now()->subDays(4),
         ]);
+
         RequestAuditLog::create([
             'service_request_id' => $req4->id,
             'user_id' => $admin->id,
@@ -197,6 +199,7 @@ class DatabaseSeeder extends Seeder
             'notes' => 'Switch port tagged and IP provisioned.',
             'created_at' => now()->subDays(2),
         ]);
+
         RequestAuditLog::create([
             'service_request_id' => $req4->id,
             'user_id' => $admin->id,
@@ -207,17 +210,17 @@ class DatabaseSeeder extends Seeder
             'created_at' => now()->subHours(6),
         ]);
 
-        // Request 5: Rejected
         $req5 = ServiceRequest::create([
             'reference_number' => 'REF-202609-0005',
             'user_id' => $employee1->id,
-            'department_id' => $facilitiesDept->id,
+            'department_id' => $officeC->id,
             'service_category_id' => $catSupplies->id,
             'description' => 'Request for personal espresso machine and custom leather recliner.',
             'priority' => 'low',
             'status' => ServiceRequest::STATUS_REJECTED,
             'created_at' => now()->subDays(6),
         ]);
+
         RequestAuditLog::create([
             'service_request_id' => $req5->id,
             'user_id' => $admin->id,
