@@ -48,22 +48,22 @@ class ServiceRequestResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Group::make()
+                Group::make()
                     ->schema([
-                        Forms\Components\Section::make('Request Details')
+                        Section::make('Request Details')
                             ->description('Provide clear and specific details about the service needed.')
                             ->schema([
-                                Forms\Components\TextInput::make('title')
+                                TextInput::make('title')
                                     ->label('Request Title')
                                     ->required()
                                     ->maxLength(255),
 
-                                Forms\Components\Textarea::make('description')
+                                Textarea::make('description')
                                     ->label('Detailed Description')
                                     ->required()
                                     ->rows(4),
 
-                                Forms\Components\FileUpload::make('attachments')
+                                FileUpload::make('attachments')
                                     ->label('Photo or Document Attachments')
                                     ->multiple()
                                     ->maxFiles(5)
@@ -73,9 +73,9 @@ class ServiceRequestResource extends Resource
                                     ->columnSpanFull(),
                             ]),
 
-                        Forms\Components\Section::make('Service Classification')
+                        Section::make('Service Classification')
                             ->schema([
-                                Forms\Components\Select::make('service_category_id')
+                                Select::make('service_category_id')
                                     ->label('Service Category')
                                     ->options(function () {
                                         return ServiceCategory::with('department')
@@ -93,11 +93,11 @@ class ServiceRequestResource extends Resource
                     ])
                     ->columnSpan(['lg' => 2]),
 
-                Forms\Components\Group::make()
+                Group::make()
                     ->schema([
-                        Forms\Components\Section::make('Priority & Assignment')
+                        Section::make('Priority & Assignment')
                             ->schema([
-                                Forms\Components\Select::make('priority')
+                                Select::make('priority')
                                     ->options([
                                         'low' => 'Low (Standard maintenance)',
                                         'medium' => 'Medium (Normal business priority)',
@@ -107,7 +107,7 @@ class ServiceRequestResource extends Resource
                                     ->default('medium')
                                     ->required(),
 
-                                Forms\Components\Select::make('requester_id')
+                                Select::make('requester_id')
                                     ->label('Requester')
                                     ->relationship('requester', 'name')
                                     ->searchable()
@@ -117,32 +117,32 @@ class ServiceRequestResource extends Resource
                                     ->dehydrated()
                                     ->required(),
 
-                                Forms\Components\Select::make('assigned_to_user_id')
+                                Select::make('assigned_to_user_id')
                                     ->label('Assigned Technician')
                                     ->relationship('assignedStaff', 'name', fn (Builder $query) => $query->whereIn('role', ['admin', 'service_manager', 'technician']))
                                     ->searchable()
                                     ->preload()
                                     ->visible(fn () => auth()->user()?->canUpdateStatus() ?? false),
 
-                                Forms\Components\DateTimePicker::make('due_date')
+                                DateTimePicker::make('due_date')
                                     ->label('Due Date')
                                     ->visible(fn () => auth()->user()?->canUpdateStatus() ?? false),
                             ]),
 
-                        Forms\Components\Section::make('Workflow Status')
+                        Section::make('Workflow Status')
                             ->description('Status updates must follow the approved workflow.')
                             ->schema([
-                                Forms\Components\Placeholder::make('current_status')
+                                Placeholder::make('current_status')
                                     ->label('Current Status')
                                     ->content(fn (?ServiceRequest $record): string => $record?->status ?? ServiceRequest::STATUS_SUBMITTED),
 
-                                Forms\Components\Textarea::make('resolution_notes')
+                                Textarea::make('resolution_notes')
                                     ->label('Resolution Notes')
                                     ->rows(3)
                                     ->visible(fn (?ServiceRequest $record) => $record?->status === ServiceRequest::STATUS_COMPLETED || (auth()->user()?->canUpdateStatus() ?? false))
                                     ->disabled(fn () => ! (auth()->user()?->canUpdateStatus() ?? false)),
 
-                                Forms\Components\Textarea::make('rejection_reason')
+                                Textarea::make('rejection_reason')
                                     ->label('Rejection Reason')
                                     ->rows(3)
                                     ->visible(fn (?ServiceRequest $record) => $record?->status === ServiceRequest::STATUS_REJECTED || (auth()->user()?->canUpdateStatus() ?? false))
@@ -158,7 +158,7 @@ class ServiceRequestResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('ticket_number')
+                TextColumn::make('ticket_number')
                     ->label('Ticket #')
                     ->searchable()
                     ->sortable()
@@ -167,21 +167,21 @@ class ServiceRequestResource extends Resource
                     ->copyable()
                     ->copyMessage('Ticket number copied'),
 
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->label('Title')
                     ->limit(35)
                     ->searchable()
                     ->sortable()
                     ->tooltip(fn (ServiceRequest $record): string => $record->title),
 
-                Tables\Columns\TextColumn::make('department.name')
+                TextColumn::make('department.name')
                     ->label('Servicing Dept')
                     ->badge()
                     ->color('info')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('requester.department.name')
+                TextColumn::make('requester.department.name')
                     ->label('Requesting Office')
                     ->placeholder('No Department')
                     ->badge()
@@ -189,13 +189,13 @@ class ServiceRequestResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('category.name')
+                TextColumn::make('category.name')
                     ->label('Category')
                     ->sortable()
                     ->searchable()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('priority')
+                TextColumn::make('priority')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'urgent' => 'danger',
@@ -206,7 +206,7 @@ class ServiceRequestResource extends Resource
                     })
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -219,26 +219,26 @@ class ServiceRequestResource extends Resource
                     })
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('requester.name')
+                TextColumn::make('requester.name')
                     ->label('Requester')
                     ->searchable()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('assignedStaff.name')
+                TextColumn::make('assignedStaff.name')
                     ->label('Assignee')
                     ->placeholder('Unassigned')
                     ->badge()
                     ->color('gray')
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime('M d, Y H:i')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->options([
                         'Submitted' => 'Submitted',
                         'Under Review' => 'Under Review',
@@ -247,7 +247,7 @@ class ServiceRequestResource extends Resource
                         'Rejected' => 'Rejected',
                     ]),
 
-                Tables\Filters\SelectFilter::make('priority')
+                SelectFilter::make('priority')
                     ->options([
                         'low' => 'Low',
                         'medium' => 'Medium',
@@ -255,20 +255,20 @@ class ServiceRequestResource extends Resource
                         'urgent' => 'Urgent',
                     ]),
 
-                Tables\Filters\SelectFilter::make('department')
+                SelectFilter::make('department')
                     ->label('Servicing Dept')
                     ->relationship('department', 'name'),
 
-                Tables\Filters\SelectFilter::make('requester_department')
+                SelectFilter::make('requester_department')
                     ->label('Requesting Office')
                     ->relationship('requester.department', 'name'),
 
-                Tables\Filters\SelectFilter::make('assigned_to_user_id')
+                SelectFilter::make('assigned_to_user_id')
                     ->label('Assignee')
                     ->relationship('assignedStaff', 'name'),
             ])
             ->actions([
-                Tables\Actions\Action::make('updateStatus')
+                Action::make('updateStatus')
                     ->label('Update Status')
                     ->icon('heroicon-m-arrow-path')
                     ->color('primary')
@@ -280,17 +280,17 @@ class ServiceRequestResource extends Resource
                         $options = array_combine($allowed, $allowed);
 
                         return [
-                            Forms\Components\Placeholder::make('workflow_info')
+                            Placeholder::make('workflow_info')
                                 ->label('Workflow Guideline')
                                 ->content("Current Status: {$record->status} -> Allowed transitions: ".implode(', ', $allowed)),
 
-                            Forms\Components\Select::make('new_status')
+                            Select::make('new_status')
                                 ->label('Next Status')
                                 ->options($options)
                                 ->required()
                                 ->live(),
 
-                            Forms\Components\Textarea::make('notes')
+                            Textarea::make('notes')
                                 ->label(fn (Get $get): string => match ($get('new_status')) {
                                     ServiceRequest::STATUS_REJECTED => 'Rejection Reason (Required)',
                                     ServiceRequest::STATUS_COMPLETED => 'Resolution Summary (Required)',
@@ -322,7 +322,7 @@ class ServiceRequestResource extends Resource
                         }
                     }),
 
-                Tables\Actions\Action::make('assignStaff')
+                Action::make('assignStaff')
                     ->label('Assign')
                     ->icon('heroicon-m-user-plus')
                     ->color('gray')
