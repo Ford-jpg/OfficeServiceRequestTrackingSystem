@@ -12,35 +12,35 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $facilities = Department::create([
-            'name' => 'Facilities & Maintenance',
-            'code' => 'FAC',
-            'email' => 'facilities@company.com',
-            'description' => 'Building infrastructure, HVAC, plumbing, electrical, and furniture maintenance.',
+        $officeA = Department::create([
+            'name' => 'Office A',
+            'code' => 'OFA',
+            'email' => 'office-a@company.com',
+            'description' => 'Office A operations and facility services.',
             'is_active' => true,
         ]);
 
-        $it = Department::create([
-            'name' => 'Information Technology',
-            'code' => 'IT',
-            'email' => 'it-helpdesk@company.com',
-            'description' => 'Workstation hardware, software licensing, printers, and network infrastructure.',
+        $officeB = Department::create([
+            'name' => 'Office B',
+            'code' => 'OFB',
+            'email' => 'office-b@company.com',
+            'description' => 'Office B workstations and technical infrastructure support.',
             'is_active' => true,
         ]);
 
-        $adminServices = Department::create([
-            'name' => 'Office Administration & Supplies',
-            'code' => 'ADMIN',
-            'email' => 'admin-services@company.com',
-            'description' => 'Office stationery, pantry supplies, ergonomics, and meeting room logistics.',
+        $officeC = Department::create([
+            'name' => 'Office C',
+            'code' => 'OFC',
+            'email' => 'office-c@company.com',
+            'description' => 'Office C administration and office supply logistics.',
             'is_active' => true,
         ]);
 
-        Department::create([
-            'name' => 'Security & Access Control',
-            'code' => 'SEC',
-            'email' => 'security@company.com',
-            'description' => 'Access keycards, visitor credentials, and physical office security.',
+        $officeD = Department::create([
+            'name' => 'Office D',
+            'code' => 'OFD',
+            'email' => 'office-d@company.com',
+            'description' => 'Office D security and access control services.',
             'is_active' => true,
         ]);
 
@@ -55,49 +55,56 @@ class DatabaseSeeder extends Seeder
         ]);
 
         ServiceCategory::create([
-            'department_id' => $facilities->id,
+            'department_id' => $officeA->id,
             'name' => 'Air Conditioning & Climate',
             'description' => 'Temperature issues, leaks, air flow adjustments.',
             'sla_hours_default' => 12,
         ]);
 
         ServiceCategory::create([
-            'department_id' => $facilities->id,
+            'department_id' => $officeA->id,
             'name' => 'Plumbing & Water',
             'description' => 'Leaks, restroom fixtures, water dispensers.',
             'sla_hours_default' => 4,
         ]);
 
         ServiceCategory::create([
-            'department_id' => $facilities->id,
+            'department_id' => $officeA->id,
             'name' => 'Electrical & Lighting',
             'description' => 'Flickering lights, blown outlets, circuit breakers.',
             'sla_hours_default' => 8,
         ]);
 
         ServiceCategory::create([
-            'department_id' => $it->id,
+            'department_id' => $officeB->id,
             'name' => 'Hardware & Laptop Repairs',
             'description' => 'Battery replacement, monitor repairs, peripherals.',
             'sla_hours_default' => 24,
         ]);
 
         ServiceCategory::create([
-            'department_id' => $it->id,
+            'department_id' => $officeB->id,
             'name' => 'Network & Wi-Fi Access',
             'description' => 'Ethernet port issues, VPN configuration, SSID drops.',
             'sla_hours_default' => 4,
         ]);
 
         ServiceCategory::create([
-            'department_id' => $adminServices->id,
+            'department_id' => $officeC->id,
             'name' => 'Stationery & Office Supplies',
             'description' => 'Desk supplies, presentation whiteboards, notebooks.',
             'sla_hours_default' => 48,
         ]);
 
         ServiceCategory::create([
-            'department_id' => $facilities->id,
+            'department_id' => $officeD->id,
+            'name' => 'Security & Access Badges',
+            'description' => 'Badge replacement, visitor credentials, door access.',
+            'sla_hours_default' => 8,
+        ]);
+
+        ServiceCategory::create([
+            'department_id' => $officeA->id,
             'name' => 'Ergonomics & Desk Furniture',
             'description' => 'Standing desk motor repair, ergonomic chair adjustments.',
             'sla_hours_default' => 36,
