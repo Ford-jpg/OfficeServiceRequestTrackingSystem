@@ -165,7 +165,7 @@ class ServiceRequestResource extends Resource
                                     ->visible(fn () => auth()->user()?->canUpdateStatus() ?? false),
 
                                 Forms\Components\DateTimePicker::make('due_date')
-                                    ->label('SLA Due Date')
+                                    ->label('Due Date')
                                     ->visible(fn () => auth()->user()?->canUpdateStatus() ?? false),
                             ]),
 
@@ -542,7 +542,7 @@ class ServiceRequestResource extends Resource
                                         ->icon('heroicon-m-wrench'),
 
                                     Infolists\Components\TextEntry::make('due_date')
-                                        ->label('Target SLA Due Date')
+                                        ->label('Target Due Date')
                                         ->dateTime('M d, Y H:i')
                                         ->placeholder('Not set'),
 
