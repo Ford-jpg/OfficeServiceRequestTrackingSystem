@@ -12,48 +12,34 @@ class StatsOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $user = auth()->user();
-        $query = ServiceRequest::query();
-
-        if ($user && ! $user->isAdmin()) {
-            $query->where('department_id', $user->department_id);
-        }
-
-        $submittedCount = (clone $query)->where('status', ServiceRequest::STATUS_SUBMITTED)->count();
-        $underReviewCount = (clone $query)->where('status', ServiceRequest::STATUS_UNDER_REVIEW)->count();
-        $inProgressCount = (clone $query)->where('status', ServiceRequest::STATUS_IN_PROGRESS)->count();
-        $completedCount = (clone $query)->where('status', ServiceRequest::STATUS_COMPLETED)->count();
-        $rejectedCount = (clone $query)->where('status', ServiceRequest::STATUS_REJECTED)->count();
-        $totalCount = (clone $query)->count();
-
         return [
-            Stat::make('Submitted', $submittedCount)
+            Stat::make('Submitted', ServiceRequest::where('status', ServiceRequest::STATUS_SUBMITTED)->count())
                 ->description('Awaiting review')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
 
-            Stat::make('Under Review', $underReviewCount)
-                ->description('In evaluation')
+            Stat::make('Under Review', ServiceRequest::where('status', ServiceRequest::STATUS_UNDER_REVIEW)->count())
+                ->description('Under evaluation')
                 ->descriptionIcon('heroicon-m-magnifying-glass')
                 ->color('info'),
 
-            Stat::make('In Progress', $inProgressCount)
-                ->description('Active technician work')
+            Stat::make('In Progress', ServiceRequest::where('status', ServiceRequest::STATUS_IN_PROGRESS)->count())
+                ->description('Active work')
                 ->descriptionIcon('heroicon-m-wrench')
                 ->color('primary'),
 
-            Stat::make('Completed', $completedCount)
-                ->description('Successfully resolved')
+            Stat::make('Completed', ServiceRequest::where('status', ServiceRequest::STATUS_COMPLETED)->count())
+                ->description('Resolved requests')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
-            Stat::make('Rejected', $rejectedCount)
+            Stat::make('Rejected', ServiceRequest::where('status', ServiceRequest::STATUS_REJECTED)->count())
                 ->description('Declined requests')
                 ->descriptionIcon('heroicon-m-x-circle')
                 ->color('danger'),
 
-            Stat::make('Total Requests', $totalCount)
-                ->description('All time volume')
+            Stat::make('Total Requests', ServiceRequest::count())
+                ->description('Total volume')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('gray'),
         ];

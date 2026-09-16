@@ -19,8 +19,6 @@ class RequestAuditLog extends Model
         'from_status',
         'to_status',
         'notes',
-        'ip_address',
-        'user_agent',
         'created_at',
     ];
 

@@ -19,9 +19,6 @@ return new class extends Migration
             $table->string('password');
             $table->string('role')->default('employee');
             $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete();
-            $table->string('phone')->nullable();
-            $table->string('job_title')->nullable();
-            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });
