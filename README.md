@@ -51,12 +51,8 @@ Access the panel at: [http://localhost:8000](http://localhost:8000)
 
 ## Default Login Credentials
 
-**Password for all accounts:** `password`
+**Password:** `password`
 
 | Role | Email |
 | --- | --- |
 | Admin | `admin@example.com` |
-| Service Manager | `manager@example.com` |
-| Facilities Technician | `tech.facilities@example.com` |
-| IT Technician | `tech.it@example.com` |
-| Employee | `jane.doe@example.com` |

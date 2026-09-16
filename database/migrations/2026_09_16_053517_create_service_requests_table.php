@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('requester_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('department_id')->constrained('departments')->cascadeOnDelete();
             $table->foreignId('service_category_id')->constrained('service_categories')->cascadeOnDelete();
-            $table->foreignId('location_id')->constrained('locations')->cascadeOnDelete();
             $table->foreignId('assigned_to_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('title');
             $table->longText('description');
