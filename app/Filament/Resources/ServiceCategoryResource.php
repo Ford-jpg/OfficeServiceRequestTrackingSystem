@@ -40,7 +40,7 @@ class ServiceCategoryResource extends Resource
                             ->placeholder('e.g. Air Conditioning / HVAC'),
 
                         Forms\Components\TextInput::make('sla_hours_default')
-                            ->label('Default SLA (Hours)')
+                            ->label(' (Hours)')
                             ->numeric()
                             ->default(24)
                             ->required()
@@ -74,7 +74,7 @@ class ServiceCategoryResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('sla_hours_default')
-                    ->label('SLA Target')
+                    ->label('Target')
                     ->suffix(' hrs')
                     ->sortable(),
 
