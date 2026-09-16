@@ -8,15 +8,12 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class ServiceCategoryResource extends Resource
@@ -52,10 +49,6 @@ class ServiceCategoryResource extends Resource
                             ->required()
                             ->maxLength(255),
 
-                        Toggle::make('is_active')
-                            ->label('Active')
-                            ->default(true),
-
                         Textarea::make('description')
                             ->label('Description')
                             ->columnSpanFull()
@@ -87,22 +80,11 @@ class ServiceCategoryResource extends Resource
                     ->counts('serviceRequests')
                     ->badge()
                     ->color('gray'),
-
-                IconColumn::make('is_active')
-                    ->label('Active')
-                    ->boolean()
-                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('department_id')
                     ->label('Office or Unit')
                     ->relationship('department', 'name'),
-
-                TernaryFilter::make('is_active')
-                    ->label('Status')
-                    ->placeholder('All')
-                    ->trueLabel('Active Only')
-                    ->falseLabel('Inactive Only'),
             ])
             ->actions([
                 EditAction::make(),
