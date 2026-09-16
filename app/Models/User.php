@@ -106,11 +106,24 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'employee';
     }
 
-    /**
-     * Authorized personnel allowed to update request statuses.
-     */
     public function canUpdateStatus(): bool
     {
         return in_array($this->role, ['admin', 'service_manager', 'technician'], true);
+    }
+
+    public function hasRole(string|array $roles): bool
+    {
+        $roles = (array) $roles;
+
+        return in_array($this->role, $roles, true);
+    }
+
+    public function isInDepartment(?int $departmentId): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return $this->department_id !== null && (int) $this->department_id === (int) $departmentId;
     }
 }

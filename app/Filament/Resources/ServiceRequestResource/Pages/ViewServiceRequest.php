@@ -19,7 +19,6 @@ class ViewServiceRequest extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            // Requirement 3 & 4: Workflow status transition button on View Page
             Actions\Action::make('updateStatus')
                 ->label('Update Status')
                 ->icon('heroicon-m-arrow-path')
@@ -34,7 +33,7 @@ class ViewServiceRequest extends ViewRecord
                     return [
                         Forms\Components\Placeholder::make('workflow_info')
                             ->label('Current Status')
-                            ->content("{$record->status} (Allowed next: " . implode(', ', $allowed) . ')'),
+                            ->content("{$record->status} (Allowed next: ".implode(', ', $allowed).')'),
 
                         Forms\Components\Select::make('new_status')
                             ->label('Transition To')
@@ -75,7 +74,6 @@ class ViewServiceRequest extends ViewRecord
                     }
                 }),
 
-            // Quick Assign Action
             Actions\Action::make('assignStaff')
                 ->label('Assign Technician')
                 ->icon('heroicon-m-user-plus')
@@ -111,7 +109,7 @@ class ViewServiceRequest extends ViewRecord
                         'action' => 'assigned',
                         'from_status' => $this->record->status,
                         'to_status' => $this->record->status,
-                        'notes' => "Assigned from {$oldAssignee} to {$newStaff?->name}" . ($data['notes'] ? ": {$data['notes']}" : ''),
+                        'notes' => "Assigned from {$oldAssignee} to {$newStaff?->name}".($data['notes'] ? ": {$data['notes']}" : ''),
                         'ip_address' => request()?->ip(),
                         'user_agent' => request()?->userAgent(),
                         'created_at' => now(),

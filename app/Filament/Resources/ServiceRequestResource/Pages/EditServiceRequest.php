@@ -22,7 +22,6 @@ class EditServiceRequest extends EditRecord
 
     protected function beforeSave(): void
     {
-        // Audit log if status changed via edit form
         if ($this->record->isDirty('status')) {
             RequestAuditLog::create([
                 'service_request_id' => $this->record->id,

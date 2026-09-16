@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -49,7 +50,15 @@ class UserResource extends Resource
                             ->helperText('Defines authorization level: Admin, Manager, and Technician can update ticket statuses.'),
 
                         Forms\Components\Select::make('department_id')
-                            ->relationship('department', 'name')
+                            ->relationship('department', 'name', modifyQueryUsing: function ($query) {
+                                $user = auth()->user();
+                                if ($user && ! $user->isAdmin()) {
+                                    $query->where('id', $user->department_id);
+                                }
+                            })
+                            ->default(fn () => auth()->user()?->isAdmin() ? null : auth()->user()?->department_id)
+                            ->disabled(fn () => ! (auth()->user()?->isAdmin() ?? false))
+                            ->dehydrated()
                             ->searchable()
                             ->preload()
                             ->nullable()
@@ -149,6 +158,18 @@ class UserResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && ! $user->isAdmin()) {
+            $query->where('department_id', $user->department_id);
+        }
+
+        return $query;
     }
 
     public static function getRelations(): array

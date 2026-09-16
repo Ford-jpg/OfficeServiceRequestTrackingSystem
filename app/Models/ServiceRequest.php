@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\DepartmentScope;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,9 +16,13 @@ class ServiceRequest extends Model
     use HasFactory;
 
     public const STATUS_SUBMITTED = 'Submitted';
+
     public const STATUS_UNDER_REVIEW = 'Under Review';
+
     public const STATUS_IN_PROGRESS = 'In Progress';
+
     public const STATUS_COMPLETED = 'Completed';
+
     public const STATUS_REJECTED = 'Rejected';
 
     public const STATUSES = [
@@ -29,8 +34,11 @@ class ServiceRequest extends Model
     ];
 
     public const PRIORITY_LOW = 'low';
+
     public const PRIORITY_MEDIUM = 'medium';
+
     public const PRIORITY_HIGH = 'high';
+
     public const PRIORITY_URGENT = 'urgent';
 
     protected $fillable = [
@@ -65,10 +73,12 @@ class ServiceRequest extends Model
 
     protected static function booted(): void
     {
+        static::addGlobalScope(new DepartmentScope);
+
         static::creating(function (ServiceRequest $request) {
             if (empty($request->ticket_number)) {
-                $prefix = 'SR-' . date('Ym') . '-';
-                $latest = self::where('ticket_number', 'LIKE', $prefix . '%')
+                $prefix = 'SR-'.date('Ym').'-';
+                $latest = self::withoutGlobalScopes()->where('ticket_number', 'LIKE', $prefix.'%')
                     ->orderBy('id', 'desc')
                     ->value('ticket_number');
 
@@ -77,14 +87,13 @@ class ServiceRequest extends Model
                     $nextNumber = ((int) $matches[1]) + 1;
                 }
 
-                $request->ticket_number = $prefix . str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
+                $request->ticket_number = $prefix.str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
             }
 
             if (empty($request->status)) {
                 $request->status = self::STATUS_SUBMITTED;
             }
 
-            // Auto-calculate SLA due date from category default if empty
             if (empty($request->due_date) && $request->service_category_id) {
                 $category = ServiceCategory::find($request->service_category_id);
                 $slaHours = $category?->sla_hours_default ?? 24;
@@ -93,7 +102,6 @@ class ServiceRequest extends Model
         });
 
         static::created(function (ServiceRequest $request) {
-            // Record initial creation in audit log
             RequestAuditLog::create([
                 'service_request_id' => $request->id,
                 'user_id' => $request->requester_id ?? auth()->id(),
@@ -154,7 +162,6 @@ class ServiceRequest extends Model
             return [];
         }
 
-        // Administrators can perform any transition if needed
         if ($user->isAdmin()) {
             return match ($this->status) {
                 self::STATUS_SUBMITTED => [self::STATUS_UNDER_REVIEW, self::STATUS_REJECTED],
@@ -165,7 +172,6 @@ class ServiceRequest extends Model
             };
         }
 
-        // Standard workflow for service managers and technicians:
         return match ($this->status) {
             self::STATUS_SUBMITTED => [self::STATUS_UNDER_REVIEW, self::STATUS_REJECTED],
             self::STATUS_UNDER_REVIEW => [self::STATUS_IN_PROGRESS, self::STATUS_REJECTED],
@@ -196,7 +202,6 @@ class ServiceRequest extends Model
             return;
         }
 
-        // Validate workflow transitions
         $allowed = $this->getNextAllowedStatuses($user);
         if (! in_array($newStatus, $allowed, true) && ! $user->isAdmin()) {
             throw ValidationException::withMessages([
@@ -204,14 +209,12 @@ class ServiceRequest extends Model
             ]);
         }
 
-        // Validate required reason for rejection
         if ($newStatus === self::STATUS_REJECTED && empty(trim($notes ?? ''))) {
             throw ValidationException::withMessages([
                 'rejection_reason' => 'A reason is required when rejecting a request.',
             ]);
         }
 
-        // Validate required notes for completion
         if ($newStatus === self::STATUS_COMPLETED && empty(trim($notes ?? ''))) {
             throw ValidationException::withMessages([
                 'resolution_notes' => 'Resolution notes are required when marking a request as Completed.',
@@ -230,7 +233,6 @@ class ServiceRequest extends Model
 
         $this->save();
 
-        // Record audit trail entry
         RequestAuditLog::create([
             'service_request_id' => $this->id,
             'user_id' => $user->id,

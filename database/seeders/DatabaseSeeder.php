@@ -14,12 +14,8 @@ use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // 1. Seed Departments
         $facilities = Department::create([
             'name' => 'Facilities & Maintenance',
             'code' => 'FAC',
@@ -52,7 +48,6 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 2. Seed Users
         $admin = User::create([
             'name' => 'System Administrator',
             'email' => 'admin@example.com',
@@ -101,6 +96,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'jane.doe@example.com',
             'password' => Hash::make('password'),
             'role' => 'employee',
+            'department_id' => $facilities->id,
             'job_title' => 'Senior Product Designer',
             'phone' => '+1 (555) 010-0005',
             'is_active' => true,
@@ -111,6 +107,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'john.smith@example.com',
             'password' => Hash::make('password'),
             'role' => 'employee',
+            'department_id' => $it->id,
             'job_title' => 'Financial Analyst',
             'phone' => '+1 (555) 010-0006',
             'is_active' => true,
@@ -121,12 +118,12 @@ class DatabaseSeeder extends Seeder
             'email' => 'sarah.lee@example.com',
             'password' => Hash::make('password'),
             'role' => 'employee',
+            'department_id' => $facilities->id,
             'job_title' => 'Talent Acquisition Partner',
             'phone' => '+1 (555) 010-0007',
             'is_active' => true,
         ]);
 
-        // 3. Seed Locations
         $loc1 = Location::create(['building' => 'Main Tower', 'floor' => 'Ground Floor', 'room_or_area' => 'Reception & Visitor Lounge']);
         $loc2 = Location::create(['building' => 'Main Tower', 'floor' => '2nd Floor', 'room_or_area' => 'Finance & Accounting Hub']);
         $loc3 = Location::create(['building' => 'Main Tower', 'floor' => '3rd Floor', 'room_or_area' => 'Executive Boardroom A']);
@@ -134,7 +131,6 @@ class DatabaseSeeder extends Seeder
         $loc5 = Location::create(['building' => 'Innovation Wing', 'floor' => '1st Floor', 'room_or_area' => 'Engineering Lab & Server Room']);
         $loc6 = Location::create(['building' => 'Innovation Wing', 'floor' => '2nd Floor', 'room_or_area' => 'Staff Pantry & Coffee Bar']);
 
-        // 4. Seed Service Categories
         $catHvac = ServiceCategory::create([
             'department_id' => $facilities->id,
             'name' => 'Air Conditioning & Climate',
@@ -184,12 +180,8 @@ class DatabaseSeeder extends Seeder
             'sla_hours_default' => 36,
         ]);
 
-        // 5. Seed Requests representing each status in the workflow:
-        // Submitted -> Under Review -> In Progress -> Completed / Rejected
-
-        // A. Submitted (Newly created)
         $req1 = ServiceRequest::create([
-            'ticket_number' => 'SR-' . date('Ym') . '-0001',
+            'ticket_number' => 'SR-'.date('Ym').'-0001',
             'requester_id' => $employee1->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catHvac->id,
@@ -203,7 +195,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $req2 = ServiceRequest::create([
-            'ticket_number' => 'SR-' . date('Ym') . '-0002',
+            'ticket_number' => 'SR-'.date('Ym').'-0002',
             'requester_id' => $employee2->id,
             'department_id' => $it->id,
             'service_category_id' => $catHardware->id,
@@ -216,9 +208,8 @@ class DatabaseSeeder extends Seeder
             'created_at' => Carbon::now()->subHours(5),
         ]);
 
-        // B. Under Review
         $req3 = ServiceRequest::create([
-            'ticket_number' => 'SR-' . date('Ym') . '-0003',
+            'ticket_number' => 'SR-'.date('Ym').'-0003',
             'requester_id' => $employee3->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catPlumbing->id,
@@ -242,9 +233,8 @@ class DatabaseSeeder extends Seeder
             'created_at' => Carbon::now()->subHours(3),
         ]);
 
-        // C. In Progress
         $req4 = ServiceRequest::create([
-            'ticket_number' => 'SR-' . date('Ym') . '-0004',
+            'ticket_number' => 'SR-'.date('Ym').'-0004',
             'requester_id' => $employee1->id,
             'department_id' => $it->id,
             'service_category_id' => $catNetwork->id,
@@ -278,9 +268,8 @@ class DatabaseSeeder extends Seeder
             'created_at' => Carbon::now()->subHours(1),
         ]);
 
-        // D. Completed (Successfully resolved)
         $req5 = ServiceRequest::create([
-            'ticket_number' => 'SR-' . date('Ym') . '-0005',
+            'ticket_number' => 'SR-'.date('Ym').'-0005',
             'requester_id' => $employee2->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catElectrical->id,
@@ -328,9 +317,8 @@ class DatabaseSeeder extends Seeder
             'created_at' => Carbon::now()->subHours(3),
         ]);
 
-        // E. Rejected (Declined with mandatory reason)
         $req6 = ServiceRequest::create([
-            'ticket_number' => 'SR-' . date('Ym') . '-0006',
+            'ticket_number' => 'SR-'.date('Ym').'-0006',
             'requester_id' => $employee3->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catFurniture->id,
@@ -364,9 +352,8 @@ class DatabaseSeeder extends Seeder
             'created_at' => Carbon::now()->subDays(1),
         ]);
 
-        // F. Additional sample requests for richer dashboard metrics
         ServiceRequest::create([
-            'ticket_number' => 'SR-' . date('Ym') . '-0007',
+            'ticket_number' => 'SR-'.date('Ym').'-0007',
             'requester_id' => $employee1->id,
             'department_id' => $adminServices->id,
             'service_category_id' => $catSupplies->id,
@@ -380,7 +367,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         ServiceRequest::create([
-            'ticket_number' => 'SR-' . date('Ym') . '-0008',
+            'ticket_number' => 'SR-'.date('Ym').'-0008',
             'requester_id' => $employee2->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catHvac->id,

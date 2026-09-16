@@ -12,12 +12,19 @@ class StatsOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $submittedCount = ServiceRequest::where('status', ServiceRequest::STATUS_SUBMITTED)->count();
-        $underReviewCount = ServiceRequest::where('status', ServiceRequest::STATUS_UNDER_REVIEW)->count();
-        $inProgressCount = ServiceRequest::where('status', ServiceRequest::STATUS_IN_PROGRESS)->count();
-        $completedCount = ServiceRequest::where('status', ServiceRequest::STATUS_COMPLETED)->count();
-        $rejectedCount = ServiceRequest::where('status', ServiceRequest::STATUS_REJECTED)->count();
-        $totalCount = ServiceRequest::count();
+        $user = auth()->user();
+        $query = ServiceRequest::query();
+
+        if ($user && ! $user->isAdmin()) {
+            $query->where('department_id', $user->department_id);
+        }
+
+        $submittedCount = (clone $query)->where('status', ServiceRequest::STATUS_SUBMITTED)->count();
+        $underReviewCount = (clone $query)->where('status', ServiceRequest::STATUS_UNDER_REVIEW)->count();
+        $inProgressCount = (clone $query)->where('status', ServiceRequest::STATUS_IN_PROGRESS)->count();
+        $completedCount = (clone $query)->where('status', ServiceRequest::STATUS_COMPLETED)->count();
+        $rejectedCount = (clone $query)->where('status', ServiceRequest::STATUS_REJECTED)->count();
+        $totalCount = (clone $query)->count();
 
         return [
             Stat::make('Submitted', $submittedCount)

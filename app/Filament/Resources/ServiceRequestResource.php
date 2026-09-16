@@ -32,11 +32,18 @@ class ServiceRequestResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = ServiceRequest::whereIn('status', [
+        $user = auth()->user();
+        $query = ServiceRequest::whereIn('status', [
             ServiceRequest::STATUS_SUBMITTED,
             ServiceRequest::STATUS_UNDER_REVIEW,
             ServiceRequest::STATUS_IN_PROGRESS,
-        ])->count();
+        ]);
+
+        if ($user && ! $user->isAdmin()) {
+            $query->where('department_id', $user->department_id);
+        }
+
+        $count = $query->count();
 
         return $count > 0 ? (string) $count : null;
     }
@@ -81,7 +88,18 @@ class ServiceRequestResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('department_id')
                                     ->label('Target Department')
-                                    ->options(Department::where('is_active', true)->pluck('name', 'id'))
+                                    ->options(function () {
+                                        $user = auth()->user();
+                                        $query = Department::where('is_active', true);
+                                        if ($user && ! $user->isAdmin() && $user->department_id) {
+                                            $query->where('id', $user->department_id);
+                                        }
+
+                                        return $query->pluck('name', 'id');
+                                    })
+                                    ->default(fn () => auth()->user()?->isAdmin() ? null : auth()->user()?->department_id)
+                                    ->disabled(fn () => ! (auth()->user()?->isAdmin() ?? false))
+                                    ->dehydrated()
                                     ->required()
                                     ->live()
                                     ->searchable()
@@ -95,6 +113,7 @@ class ServiceRequestResource extends Resource
                                         if (! $departmentId) {
                                             return ServiceCategory::where('is_active', true)->pluck('name', 'id');
                                         }
+
                                         return ServiceCategory::where('department_id', $departmentId)
                                             ->where('is_active', true)
                                             ->pluck('name', 'id');
@@ -276,7 +295,6 @@ class ServiceRequestResource extends Resource
                     ->relationship('assignedStaff', 'name'),
             ])
             ->actions([
-                // Requirement 3 & 4: Status Update Modal Action with Workflow enforcement and Authorization check
                 Tables\Actions\Action::make('updateStatus')
                     ->label('Update Status')
                     ->icon('heroicon-m-arrow-path')
@@ -291,7 +309,7 @@ class ServiceRequestResource extends Resource
                         return [
                             Forms\Components\Placeholder::make('workflow_info')
                                 ->label('Workflow Guideline')
-                                ->content("Current Status: {$record->status} -> Allowed transitions: " . implode(', ', $allowed)),
+                                ->content("Current Status: {$record->status} -> Allowed transitions: ".implode(', ', $allowed)),
 
                             Forms\Components\Select::make('new_status')
                                 ->label('Next Status')
@@ -331,7 +349,6 @@ class ServiceRequestResource extends Resource
                         }
                     }),
 
-                // Quick Assign Action for Managers and Admins
                 Tables\Actions\Action::make('assignStaff')
                     ->label('Assign')
                     ->icon('heroicon-m-user-plus')
@@ -354,7 +371,6 @@ class ServiceRequestResource extends Resource
                         $oldAssignee = $record->assignedStaff?->name ?? 'None';
                         $record->assigned_to_user_id = $data['assigned_to_user_id'];
 
-                        // Auto-advance to Under Review or In Progress if currently Submitted
                         $statusNote = '';
                         if ($record->status === ServiceRequest::STATUS_SUBMITTED) {
                             $record->status = ServiceRequest::STATUS_UNDER_REVIEW;
@@ -370,7 +386,7 @@ class ServiceRequestResource extends Resource
                             'action' => 'assigned',
                             'from_status' => $record->status,
                             'to_status' => $record->status,
-                            'notes' => "Reassigned from {$oldAssignee} to {$newStaff?->name}" . ($data['notes'] ? ": {$data['notes']}" : ''),
+                            'notes' => "Reassigned from {$oldAssignee} to {$newStaff?->name}".($data['notes'] ? ": {$data['notes']}" : ''),
                             'ip_address' => request()?->ip(),
                             'user_agent' => request()?->userAgent(),
                             'created_at' => now(),
@@ -449,7 +465,6 @@ class ServiceRequestResource extends Resource
                                 ])
                                 ->columns(2),
 
-                            // Requirement 6: Audit Trail Timeline
                             Infolists\Components\Section::make('Audit Trail & Status History')
                                 ->description('Chronological record showing who changed status, what action occurred, and when.')
                                 ->schema([
@@ -475,6 +490,7 @@ class ServiceRequestResource extends Resource
                                                             if ($record->from_status && $record->to_status) {
                                                                 return "{$record->from_status} → {$record->to_status}";
                                                             }
+
                                                             return $record->to_status ?? ucfirst($record->action);
                                                         })
                                                         ->badge()
@@ -537,6 +553,18 @@ class ServiceRequestResource extends Resource
                         ])->columnSpan(1),
                     ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && ! $user->isAdmin()) {
+            $query->where('department_id', $user->department_id);
+        }
+
+        return $query;
     }
 
     public static function getRelations(): array

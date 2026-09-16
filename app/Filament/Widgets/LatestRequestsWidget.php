@@ -11,14 +11,23 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class LatestRequestsWidget extends BaseWidget
 {
     protected static ?int $sort = 3;
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
+
     protected static ?string $heading = 'Recent Service Requests';
 
     public function table(Table $table): Table
     {
+        $user = auth()->user();
+        $query = ServiceRequest::query();
+
+        if ($user && ! $user->isAdmin()) {
+            $query->where('department_id', $user->department_id);
+        }
+
         return $table
             ->query(
-                ServiceRequest::query()->latest()->limit(8)
+                $query->latest()->limit(8)
             )
             ->columns([
                 Tables\Columns\TextColumn::make('ticket_number')

@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ServiceCategoryResource extends Resource
 {
@@ -106,6 +107,18 @@ class ServiceCategoryResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && ! $user->isAdmin()) {
+            $query->where('department_id', $user->department_id);
+        }
+
+        return $query;
     }
 
     public static function getRelations(): array

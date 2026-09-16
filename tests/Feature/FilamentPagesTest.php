@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Widgets\StatsOverviewWidget;
 use App\Models\Department;
 use App\Models\Location;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class FilamentPagesTest extends TestCase
@@ -15,6 +17,7 @@ class FilamentPagesTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected ServiceRequest $request;
 
     protected function setUp(): void
@@ -68,9 +71,8 @@ class FilamentPagesTest extends TestCase
         $response->assertSuccessful();
         $response->assertSee('Office Service Tracker');
 
-        // Test the dashboard widget output directly
-        \Livewire\Livewire::actingAs($this->admin)
-            ->test(\App\Filament\Widgets\StatsOverviewWidget::class)
+        Livewire::actingAs($this->admin)
+            ->test(StatsOverviewWidget::class)
             ->assertSee('Submitted')
             ->assertSee('Under Review')
             ->assertSee('In Progress')

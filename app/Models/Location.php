@@ -33,6 +33,7 @@ class Location extends Model
     public function getFullLocationAttribute(): string
     {
         $parts = array_filter([$this->building, $this->floor, $this->room_or_area]);
+
         return implode(' - ', $parts);
     }
 }
