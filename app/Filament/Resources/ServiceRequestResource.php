@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ServiceRequestResource\Pages;
+use App\Models\Department;
 use App\Models\RequestAuditLog;
 use App\Models\ServiceRequest;
 use Exception;
@@ -64,14 +65,45 @@ class ServiceRequestResource extends Resource
                             ->relationship('department', 'name')
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label('Name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('code')
+                                    ->label('Code')
+                                    ->required()
+                                    ->unique(Department::class, 'code')
+                                    ->maxLength(20),
+                                TextInput::make('email')
+                                    ->label('Email')
+                                    ->email()
+                                    ->maxLength(255),
+                                Textarea::make('description')
+                                    ->label('Description'),
+                            ])
+                            ->createOptionAction(fn ($action) => $action->visible(fn () => auth()->user()?->isAdmin() ?? false)),
 
                         Select::make('service_category_id')
                             ->label('Request Category')
                             ->relationship('category', 'name')
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->createOptionForm([
+                                Select::make('department_id')
+                                    ->label('Office or Unit')
+                                    ->relationship('department', 'name')
+                                    ->required(),
+                                TextInput::make('name')
+                                    ->label('Name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Textarea::make('description')
+                                    ->label('Description'),
+                            ])
+                            ->createOptionAction(fn ($action) => $action->visible(fn () => auth()->user()?->isAdmin() ?? false)),
 
                         Select::make('priority')
                             ->label('Priority')

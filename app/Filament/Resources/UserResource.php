@@ -3,9 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Models\Department;
 use App\Models\User;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -62,7 +64,24 @@ class UserResource extends Resource
                             ->relationship('department', 'name')
                             ->searchable()
                             ->preload()
-                            ->nullable(),
+                            ->nullable()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label('Name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('code')
+                                    ->label('Code')
+                                    ->required()
+                                    ->unique(Department::class, 'code')
+                                    ->maxLength(20),
+                                TextInput::make('email')
+                                    ->label('Email')
+                                    ->email()
+                                    ->maxLength(255),
+                                Textarea::make('description')
+                                    ->label('Description'),
+                            ]),
 
                         TextInput::make('password')
                             ->label('Password')
