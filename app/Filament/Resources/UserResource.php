@@ -4,10 +4,15 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
-use Filament\Forms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class UserResource extends Resource
@@ -29,21 +34,21 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('User Account')
+                Section::make('User Account')
                     ->schema([
-                        Forms\Components\TextInput::make('name')
+                        TextInput::make('name')
                             ->label('Full Name')
                             ->required()
                             ->maxLength(255),
 
-                        Forms\Components\TextInput::make('email')
+                        TextInput::make('email')
                             ->label('Email Address')
                             ->email()
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
-                        Forms\Components\Select::make('role')
+                        Select::make('role')
                             ->label('Role')
                             ->options([
                                 'admin' => 'Admin (Authorized Personnel)',
@@ -52,14 +57,14 @@ class UserResource extends Resource
                             ->default('employee')
                             ->required(),
 
-                        Forms\Components\Select::make('department_id')
+                        Select::make('department_id')
                             ->label('Office or Unit')
                             ->relationship('department', 'name')
                             ->searchable()
                             ->preload()
                             ->nullable(),
 
-                        Forms\Components\TextInput::make('password')
+                        TextInput::make('password')
                             ->label('Password')
                             ->password()
                             ->dehydrated(fn (?string $state): bool => filled($state))
@@ -74,18 +79,18 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
 
-                Tables\Columns\TextColumn::make('email')
+                TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('role')
+                TextColumn::make('role')
                     ->label('Role')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -95,33 +100,33 @@ class UserResource extends Resource
                     ->formatStateUsing(fn (string $state): string => ucfirst($state))
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('department.name')
+                TextColumn::make('department.name')
                     ->label('Office or Unit')
                     ->badge()
                     ->color('gray')
                     ->placeholder('Unassigned')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime('M d, Y')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('role')
+                SelectFilter::make('role')
                     ->options([
                         'admin' => 'Admin',
                         'employee' => 'Employee',
                     ]),
 
-                Tables\Filters\SelectFilter::make('department_id')
+                SelectFilter::make('department_id')
                     ->label('Office or Unit')
                     ->relationship('department', 'name'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+                EditAction::make(),
+                DeleteAction::make()
                     ->visible(fn (User $record): bool => auth()->id() !== $record->id),
             ]);
     }

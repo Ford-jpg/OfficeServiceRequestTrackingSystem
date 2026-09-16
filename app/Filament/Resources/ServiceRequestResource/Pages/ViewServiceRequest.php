@@ -4,8 +4,12 @@ namespace App\Filament\Resources\ServiceRequestResource\Pages;
 
 use App\Filament\Resources\ServiceRequestResource;
 use App\Models\ServiceRequest;
-use Filament\Actions;
-use Filament\Forms;
+use Exception;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -17,7 +21,7 @@ class ViewServiceRequest extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('updateStatus')
+            Action::make('updateStatus')
                 ->label('Update Status')
                 ->icon('heroicon-m-arrow-path')
                 ->color('primary')
@@ -29,17 +33,17 @@ class ViewServiceRequest extends ViewRecord
                     $options = array_combine($allowed, $allowed);
 
                     return [
-                        Forms\Components\Placeholder::make('workflow_info')
+                        Placeholder::make('workflow_info')
                             ->label('Current Status')
                             ->content("{$record->status} (Allowed next: ".implode(', ', $allowed).')'),
 
-                        Forms\Components\Select::make('new_status')
+                        Select::make('new_status')
                             ->label('Transition To')
                             ->options($options)
                             ->required()
                             ->live(),
 
-                        Forms\Components\Textarea::make('notes')
+                        Textarea::make('notes')
                             ->label(fn (Get $get): string => match ($get('new_status')) {
                                 ServiceRequest::STATUS_REJECTED => 'Rejection Reason (Required)',
                                 default => 'Status Transition Notes (Optional)',
@@ -58,7 +62,7 @@ class ViewServiceRequest extends ViewRecord
                             ->body("Request {$this->record->reference_number} is now {$data['new_status']}.")
                             ->success()
                             ->send();
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Notification::make()
                             ->title('Update Failed')
                             ->body($e->getMessage())
@@ -67,7 +71,7 @@ class ViewServiceRequest extends ViewRecord
                     }
                 }),
 
-            Actions\EditAction::make()
+            EditAction::make()
                 ->visible(fn (): bool => auth()->user()?->isAdmin() ?? false),
         ];
     }
