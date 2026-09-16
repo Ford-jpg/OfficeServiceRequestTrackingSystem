@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\UserResource;
 use App\Models\Department;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
 use App\Models\User;
+use App\Policies\UserPolicy;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
@@ -170,5 +172,18 @@ class ServiceRequestTest extends TestCase
             'to_status' => ServiceRequest::STATUS_REJECTED,
             'notes' => 'Not an approved office equipment request.',
         ]);
+    }
+
+    public function test_user_resource_is_restricted_to_admin(): void
+    {
+        $this->actingAs($this->admin);
+        $this->assertTrue(UserResource::canAccess());
+
+        $this->actingAs($this->employee);
+        $this->assertFalse(UserResource::canAccess());
+
+        $policy = new UserPolicy;
+        $this->assertTrue($policy->viewAny($this->admin));
+        $this->assertFalse($policy->viewAny($this->employee));
     }
 }
