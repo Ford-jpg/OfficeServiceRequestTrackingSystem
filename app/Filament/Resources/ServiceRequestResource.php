@@ -56,14 +56,12 @@ class ServiceRequestResource extends Resource
                                 Forms\Components\TextInput::make('title')
                                     ->label('Request Title')
                                     ->required()
-                                    ->maxLength(255)
-                                    ->placeholder('e.g. AC unit leaking in Conference Room B'),
+                                    ->maxLength(255),
 
                                 Forms\Components\Textarea::make('description')
                                     ->label('Detailed Description')
                                     ->required()
-                                    ->rows(4)
-                                    ->placeholder('Describe the issue in detail, when it began, and any relevant circumstances...'),
+                                    ->rows(4),
 
                                 Forms\Components\FileUpload::make('attachments')
                                     ->label('Photo or Document Attachments')
