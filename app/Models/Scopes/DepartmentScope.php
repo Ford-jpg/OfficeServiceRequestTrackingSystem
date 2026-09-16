@@ -3,6 +3,7 @@
 namespace App\Models\Scopes;
 
 use App\Models\Department;
+use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,15 @@ class DepartmentScope implements Scope
             $builder->where($model->getQualifiedKeyName(), $user->department_id);
         } elseif ($model instanceof User) {
             $builder->where($model->qualifyColumn('department_id'), $user->department_id);
+        } elseif ($model instanceof ServiceRequest) {
+            $builder->where(function (Builder $query) use ($user) {
+                $query->where('requester_id', $user->id);
+
+                if ($user->department_id) {
+                    $query->orWhere('department_id', $user->department_id)
+                        ->orWhereHas('requester', fn (Builder $q) => $q->where('department_id', $user->department_id));
+                }
+            });
         } elseif (Schema::hasColumn($model->getTable(), 'department_id')) {
             $builder->where($model->qualifyColumn('department_id'), $user->department_id);
         }

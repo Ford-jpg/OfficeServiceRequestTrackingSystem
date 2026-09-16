@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Department;
-use App\Models\Location;
 use App\Models\RequestAuditLog;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
@@ -27,8 +26,6 @@ class ServiceRequestWorkflowTest extends TestCase
 
     protected Department $department;
 
-    protected Location $location;
-
     protected ServiceCategory $category;
 
     protected function setUp(): void
@@ -38,13 +35,6 @@ class ServiceRequestWorkflowTest extends TestCase
         $this->department = Department::create([
             'name' => 'Facilities',
             'code' => 'FAC',
-            'is_active' => true,
-        ]);
-
-        $this->location = Location::create([
-            'building' => 'Main Tower',
-            'floor' => '2nd Floor',
-            'room_or_area' => 'Room 201',
             'is_active' => true,
         ]);
 
@@ -97,7 +87,6 @@ class ServiceRequestWorkflowTest extends TestCase
             'requester_id' => $this->employee->id,
             'department_id' => $this->department->id,
             'service_category_id' => $this->category->id,
-            'location_id' => $this->location->id,
             'title' => 'Test Service Request',
             'description' => 'Detailed issue description for testing',
             'priority' => ServiceRequest::PRIORITY_HIGH,

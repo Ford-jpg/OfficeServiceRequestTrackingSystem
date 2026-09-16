@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Department;
-use App\Models\Location;
 use App\Models\RequestAuditLog;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
@@ -124,13 +123,6 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $loc1 = Location::create(['building' => 'Main Tower', 'floor' => 'Ground Floor', 'room_or_area' => 'Reception & Visitor Lounge']);
-        $loc2 = Location::create(['building' => 'Main Tower', 'floor' => '2nd Floor', 'room_or_area' => 'Finance & Accounting Hub']);
-        $loc3 = Location::create(['building' => 'Main Tower', 'floor' => '3rd Floor', 'room_or_area' => 'Executive Boardroom A']);
-        $loc4 = Location::create(['building' => 'Main Tower', 'floor' => '4th Floor', 'room_or_area' => 'Design & Marketing Pod (Desks 12-25)']);
-        $loc5 = Location::create(['building' => 'Innovation Wing', 'floor' => '1st Floor', 'room_or_area' => 'Engineering Lab & Server Room']);
-        $loc6 = Location::create(['building' => 'Innovation Wing', 'floor' => '2nd Floor', 'room_or_area' => 'Staff Pantry & Coffee Bar']);
-
         $catHvac = ServiceCategory::create([
             'department_id' => $facilities->id,
             'name' => 'Air Conditioning & Climate',
@@ -185,7 +177,6 @@ class DatabaseSeeder extends Seeder
             'requester_id' => $employee1->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catHvac->id,
-            'location_id' => $loc3->id,
             'title' => 'AC unit whistling and blowing warm air in Boardroom A',
             'description' => 'During our 10 AM client meeting, the central air unit started making an intermittent high-pitched sound and room temperature reached 26C.',
             'priority' => ServiceRequest::PRIORITY_HIGH,
@@ -199,7 +190,6 @@ class DatabaseSeeder extends Seeder
             'requester_id' => $employee2->id,
             'department_id' => $it->id,
             'service_category_id' => $catHardware->id,
-            'location_id' => $loc2->id,
             'title' => 'Dual monitor setup displays flickering lines on secondary screen',
             'description' => 'HDMI connection appears loose or cable has degraded. Swapping ports did not solve the artifacting.',
             'priority' => ServiceRequest::PRIORITY_MEDIUM,
@@ -213,7 +203,6 @@ class DatabaseSeeder extends Seeder
             'requester_id' => $employee3->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catPlumbing->id,
-            'location_id' => $loc6->id,
             'assigned_to_user_id' => $techFac->id,
             'title' => 'Water filter dispenser leaking onto kitchen linoleum',
             'description' => 'Slow drip beneath the cabinet has accumulated a puddle near the refrigerator. Slip hazard notice placed.',
@@ -238,7 +227,6 @@ class DatabaseSeeder extends Seeder
             'requester_id' => $employee1->id,
             'department_id' => $it->id,
             'service_category_id' => $catNetwork->id,
-            'location_id' => $loc4->id,
             'assigned_to_user_id' => $techIT->id,
             'title' => 'Subnet IP conflict on Design floor wireless access point',
             'description' => 'Three designer laptops unable to connect to internal staging environment. Error code 0x800704cf.',
@@ -273,7 +261,6 @@ class DatabaseSeeder extends Seeder
             'requester_id' => $employee2->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catElectrical->id,
-            'location_id' => $loc2->id,
             'assigned_to_user_id' => $techFac->id,
             'title' => 'Overhead LED troffer light buzzing above workstation',
             'description' => 'Ballast is vibrating loudly creating a distraction for adjacent analysts.',
@@ -322,7 +309,6 @@ class DatabaseSeeder extends Seeder
             'requester_id' => $employee3->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catFurniture->id,
-            'location_id' => $loc1->id,
             'assigned_to_user_id' => $manager->id,
             'title' => 'Request for personal gaming chair in reception area',
             'description' => 'Employee requested custom high-back bucket seat for personal comfort.',
@@ -357,7 +343,6 @@ class DatabaseSeeder extends Seeder
             'requester_id' => $employee1->id,
             'department_id' => $adminServices->id,
             'service_category_id' => $catSupplies->id,
-            'location_id' => $loc4->id,
             'title' => 'Restock Post-it notes and dry-erase markers for Design Studio',
             'description' => 'Sprint planning begins Monday and dry erase pens have dried out.',
             'priority' => ServiceRequest::PRIORITY_MEDIUM,
@@ -371,7 +356,6 @@ class DatabaseSeeder extends Seeder
             'requester_id' => $employee2->id,
             'department_id' => $facilities->id,
             'service_category_id' => $catHvac->id,
-            'location_id' => $loc2->id,
             'assigned_to_user_id' => $techFac->id,
             'title' => 'Thermostat calibration needed in Finance department',
             'description' => 'Temperature fluctuating between 19C and 25C within two hours.',

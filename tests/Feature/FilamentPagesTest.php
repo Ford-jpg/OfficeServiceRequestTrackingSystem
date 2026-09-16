@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Filament\Widgets\StatsOverviewWidget;
 use App\Models\Department;
-use App\Models\Location;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -30,13 +29,6 @@ class FilamentPagesTest extends TestCase
             'is_active' => true,
         ]);
 
-        $location = Location::create([
-            'building' => 'Main Tower',
-            'floor' => '2nd Floor',
-            'room_or_area' => 'Room 201',
-            'is_active' => true,
-        ]);
-
         $category = ServiceCategory::create([
             'department_id' => $department->id,
             'name' => 'Air Conditioning',
@@ -56,7 +48,6 @@ class FilamentPagesTest extends TestCase
             'requester_id' => $this->admin->id,
             'department_id' => $department->id,
             'service_category_id' => $category->id,
-            'location_id' => $location->id,
             'title' => 'Sample AC Repair',
             'description' => 'Test description for AC issue',
             'priority' => ServiceRequest::PRIORITY_HIGH,
@@ -105,7 +96,6 @@ class FilamentPagesTest extends TestCase
     public function test_admin_can_access_department_and_user_management(): void
     {
         $this->actingAs($this->admin)->get('/admin/departments')->assertSuccessful();
-        $this->actingAs($this->admin)->get('/admin/locations')->assertSuccessful();
         $this->actingAs($this->admin)->get('/admin/service-categories')->assertSuccessful();
         $this->actingAs($this->admin)->get('/admin/users')->assertSuccessful();
     }

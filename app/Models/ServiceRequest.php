@@ -46,7 +46,6 @@ class ServiceRequest extends Model
         'requester_id',
         'department_id',
         'service_category_id',
-        'location_id',
         'assigned_to_user_id',
         'title',
         'description',
@@ -88,6 +87,13 @@ class ServiceRequest extends Model
                 }
 
                 $request->ticket_number = $prefix.str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
+            }
+
+            if (empty($request->department_id) && $request->service_category_id) {
+                $category = ServiceCategory::find($request->service_category_id);
+                if ($category) {
+                    $request->department_id = $category->department_id;
+                }
             }
 
             if (empty($request->status)) {
@@ -134,11 +140,6 @@ class ServiceRequest extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(ServiceCategory::class, 'service_category_id');
-    }
-
-    public function location(): BelongsTo
-    {
-        return $this->belongsTo(Location::class);
     }
 
     public function comments(): HasMany

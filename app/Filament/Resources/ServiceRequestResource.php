@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ServiceRequestResource\Pages;
-use App\Models\Department;
 use App\Models\RequestAuditLog;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
@@ -18,7 +17,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 
 class ServiceRequestResource extends Resource
 {
@@ -32,18 +30,11 @@ class ServiceRequestResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $user = auth()->user();
-        $query = ServiceRequest::whereIn('status', [
+        $count = ServiceRequest::whereIn('status', [
             ServiceRequest::STATUS_SUBMITTED,
             ServiceRequest::STATUS_UNDER_REVIEW,
             ServiceRequest::STATUS_IN_PROGRESS,
-        ]);
-
-        if ($user && ! $user->isAdmin()) {
-            $query->where('department_id', $user->department_id);
-        }
-
-        $count = $query->count();
+        ])->count();
 
         return $count > 0 ? (string) $count : null;
     }
@@ -84,52 +75,23 @@ class ServiceRequestResource extends Resource
                                     ->columnSpanFull(),
                             ]),
 
-                        Forms\Components\Section::make('Classification & Location')
+                        Forms\Components\Section::make('Service Classification')
                             ->schema([
-                                Forms\Components\Select::make('department_id')
-                                    ->label('Target Department')
-                                    ->options(function () {
-                                        $user = auth()->user();
-                                        $query = Department::where('is_active', true);
-                                        if ($user && ! $user->isAdmin() && $user->department_id) {
-                                            $query->where('id', $user->department_id);
-                                        }
-
-                                        return $query->pluck('name', 'id');
-                                    })
-                                    ->default(fn () => auth()->user()?->isAdmin() ? null : auth()->user()?->department_id)
-                                    ->disabled(fn () => ! (auth()->user()?->isAdmin() ?? false))
-                                    ->dehydrated()
-                                    ->required()
-                                    ->live()
-                                    ->searchable()
-                                    ->preload()
-                                    ->afterStateUpdated(fn (Forms\Set $set) => $set('service_category_id', null)),
-
                                 Forms\Components\Select::make('service_category_id')
                                     ->label('Service Category')
-                                    ->options(function (Get $get): Collection {
-                                        $departmentId = $get('department_id');
-                                        if (! $departmentId) {
-                                            return ServiceCategory::where('is_active', true)->pluck('name', 'id');
-                                        }
-
-                                        return ServiceCategory::where('department_id', $departmentId)
+                                    ->options(function () {
+                                        return ServiceCategory::with('department')
                                             ->where('is_active', true)
-                                            ->pluck('name', 'id');
+                                            ->get()
+                                            ->groupBy(fn ($cat) => $cat->department?->name ?? 'General')
+                                            ->map(fn ($group) => $group->pluck('name', 'id'))
+                                            ->toArray();
                                     })
                                     ->required()
                                     ->searchable()
-                                    ->preload(),
-
-                                Forms\Components\Select::make('location_id')
-                                    ->label('Location / Room')
-                                    ->relationship('location', 'room_or_area')
-                                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->building} - {$record->floor} - {$record->room_or_area}")
-                                    ->searchable(['building', 'floor', 'room_or_area'])
                                     ->preload()
-                                    ->required(),
-                            ])->columns(3),
+                                    ->columnSpanFull(),
+                            ]),
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -215,7 +177,15 @@ class ServiceRequestResource extends Resource
                     ->tooltip(fn (ServiceRequest $record): string => $record->title),
 
                 Tables\Columns\TextColumn::make('department.name')
-                    ->label('Department')
+                    ->label('Servicing Dept')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('requester.department.name')
+                    ->label('Requesting Office')
+                    ->placeholder('No Department')
                     ->badge()
                     ->color('gray')
                     ->sortable()
@@ -288,7 +258,12 @@ class ServiceRequestResource extends Resource
                     ]),
 
                 Tables\Filters\SelectFilter::make('department')
+                    ->label('Servicing Dept')
                     ->relationship('department', 'name'),
+
+                Tables\Filters\SelectFilter::make('requester_department')
+                    ->label('Requesting Office')
+                    ->relationship('requester.department', 'name'),
 
                 Tables\Filters\SelectFilter::make('assigned_to_user_id')
                     ->label('Assignee')
@@ -434,15 +409,18 @@ class ServiceRequestResource extends Resource
                                         ->columnSpanFull(),
 
                                     Infolists\Components\TextEntry::make('department.name')
-                                        ->label('Department')
+                                        ->label('Servicing Department')
                                         ->badge()
                                         ->color('primary'),
 
                                     Infolists\Components\TextEntry::make('category.name')
                                         ->label('Service Category'),
 
-                                    Infolists\Components\TextEntry::make('location.full_location')
-                                        ->label('Location'),
+                                    Infolists\Components\TextEntry::make('requester.department.name')
+                                        ->label('Requesting Office')
+                                        ->placeholder('No Department Assigned')
+                                        ->badge()
+                                        ->color('gray'),
                                 ])->columns(2),
 
                             Infolists\Components\Section::make('Resolution Details')
@@ -557,14 +535,7 @@ class ServiceRequestResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
-        $user = auth()->user();
-
-        if ($user && ! $user->isAdmin()) {
-            $query->where('department_id', $user->department_id);
-        }
-
-        return $query;
+        return parent::getEloquentQuery();
     }
 
     public static function getRelations(): array
